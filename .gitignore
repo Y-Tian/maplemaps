@@ -1,6 +1,12 @@
 # DEV ENV VARS
 dev_env.vars
 
+# FIREBASE CREDS
+firebase_creds.json
+
+# LOCAL CACHE ASSETS
+src/assets/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
