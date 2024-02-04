@@ -1,3 +1,6 @@
+FIREBASE_CREDS = "/application/firebase_creds.json"
+FIREBASE_URL = "maplemaps-2ab75.appspot.com"
+
 LOCAL_FILE_PATH_BUILDER = "/application/assets"
 WORLD_MAPS_FILE_PATH = f"{LOCAL_FILE_PATH_BUILDER}/world_maps"
 MAPS_FILE_PATH = f"{LOCAL_FILE_PATH_BUILDER}/maps"

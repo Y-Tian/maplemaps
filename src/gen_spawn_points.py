@@ -10,7 +10,7 @@ session = requests.session()
 
 search_index_payload = {
     # "map_id": 50000
-    # "map_id": 450016110
+    "map_id": 450016110
     # "map_id": 450003320
     # "map_id": 327022000
     # "map_id": 450005230
@@ -25,6 +25,8 @@ for index, map_details in enumerate(maps_detail_cursor):
     if index % 20 == 0:
         print(f"Processed {index}/{size_of_cursor}...")
 
+
+    map_id = map_details.get("map_id")
     raw_details = map_details.get("raw")
 
     map_mobs = raw_details.get("mobs")
@@ -33,7 +35,8 @@ for index, map_details in enumerate(maps_detail_cursor):
     if not map_mobs:
         continue
 
-    map_image_local_cache_file_path = map_details.get("target_full_file_path")
+    # map_image_local_cache_file_path = map_details.get("target_full_file_path")
+    map_image_local_cache_file_path = f"/application/assets/maps/raw/{map_id}.png"
 
     target_full_file_path = map_image_local_cache_file_path.replace("/raw/", "/generated/")
     target_full_file_path = target_full_file_path.lower()
@@ -43,7 +46,8 @@ for index, map_details in enumerate(maps_detail_cursor):
         # print(f"{target_full_file_path} is already cached!")
         continue
 
-    platform_background_image = Image.open(map_image_local_cache_file_path)
+    # platform_background_image = Image.open(map_image_local_cache_file_path)
+    platform_background_image = Image.open("993232901.png")
     # NOTE: copy to not override the original cached image
     platform_background_image = platform_background_image.copy()
 
@@ -125,4 +129,4 @@ for index, map_details in enumerate(maps_detail_cursor):
         platform_background_image.paste(mob_layer_image, coordinate_tuple, mob_layer_image.convert('RGBA'))
 
     os.makedirs(os.path.dirname(target_full_file_path), exist_ok=True)
-    platform_background_image.save(target_full_file_path, quality=95)
+    platform_background_image.save(target_full_file_path, "webp", optimize=True, quality=85)

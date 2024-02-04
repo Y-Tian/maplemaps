@@ -9,19 +9,22 @@ class MapCollector():
         self.session = requests.session()
 
     def _dump_raw_map_render(self, map_id: str, map_name: str, street_name: str):
-        target_dir_builder = f"raw/{street_name.replace(' ', '_')}"
-        # NOTE: non-whitespaced filenames
-        target_file_name_builder = f"{map_name.replace(' ', '_')}_{map_id}.png"
+        # NOTE: non-whitespaced names
+        map_name = map_name.replace(' ', '_')
+        street_name = street_name.replace(' ', '_')
+
+        target_dir_builder = "raw"
+
+        target_file_name_builder = f"{map_id}.png"
 
         target_full_file_path = f"{conf.MAPS_FILE_PATH}/{target_dir_builder}/{target_file_name_builder}"
         target_full_file_path = target_full_file_path.lower()
         
         cached_map_render = os.path.isfile(target_full_file_path)
         if cached_map_render:
-            # print(f"{target_full_file_path} is already cached!")
             return
         
-        byte_data = self.session.get(f"{conf.ALL_MAP_ENDPOINT}/{map_id}/render/layer").content
+        byte_data = self.session.get(f"{conf.ALL_MAP_ENDPOINT}/{map_id}/render").content
         # NOTE: map doesn't exist
         if len(byte_data) <= 0:
             return
@@ -38,11 +41,10 @@ class MapCollector():
             return
 
         search_index_payload = {
-            "target_full_file_path": target_full_file_path
+            "map_id": map_id
         }
 
         mongo_metadata_payload_builder = {
-            "target_full_file_path": target_full_file_path,
             "map_id": map_id,
             "map_name": map_name,
             "map_street_name": street_name,
@@ -54,19 +56,20 @@ class MapCollector():
         )
 
     def cache_all_map_renders(self):
+        # NOTE: dev testing
+        # self._dump_raw_map_render("101020407", "test", "test")
+
         all_maps_data: list = self.session.get(conf.ALL_MAP_ENDPOINT).json()
         for index, map_data in enumerate(all_maps_data):
             if index % 20 == 0:
                 print(f"Processed {index}/{len(all_maps_data)}...")
 
+            map_id = map_data.get("id")
             map_name = map_data.get("name", "")
             map_street_name = map_data.get("streetName", "")
-            map_id = map_data.get("id")
 
             self._dump_raw_map_render(map_id, map_name, map_street_name)
 
-        # NOTE: dev testing for cfes2
-        # self._dump_raw_map_render("Chicken Festival 3", "Lachelein Night Market", "450003320")
 
 mc_client = MapCollector()
 mc_client.cache_all_map_renders()
