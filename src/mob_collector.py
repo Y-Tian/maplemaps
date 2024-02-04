@@ -20,7 +20,11 @@ class MobCollector():
         if cached_mob_render:
             return
         
-        byte_data = self.session.get(f"{conf.ALL_MOB_ENDPOINT}/{mob_id}/render/stand").content
+        """
+        NOTE /render/stand shows an animated version of the mob
+        """
+        # byte_data = self.session.get(f"{conf.ALL_MOB_ENDPOINT}/{mob_id}/render/stand").content
+        byte_data = self.session.get(f"{conf.ALL_MOB_ENDPOINT}/{mob_id}/icon").content
         # NOTE: map doesn't exist
         if len(byte_data) <= 0:
             return
@@ -29,15 +33,20 @@ class MobCollector():
         with open(target_full_file_path, "wb") as fw:
             fw.write(byte_data)
 
-        # TODO: add mob stats to mongo document
+        try:
+            raw_mob_details = self.session.get(f"{conf.ALL_MOB_ENDPOINT}/{mob_id}").json()
+        except Exception as e:
+            print(f"Exception occurred while trying to get raw map details - {e}")
+
+            return
 
         search_index_payload = {
-            "target_full_file_path": target_full_file_path
+            "mob_id": mob_id
         }
 
         mongo_metadata_payload_builder = {
-            "target_full_file_path": target_full_file_path,
-            "mob_id": mob_id
+            "mob_id": mob_id,
+            "raw": raw_mob_details
         }
 
         generic_push_metadata(
